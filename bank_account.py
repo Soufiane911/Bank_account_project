@@ -94,7 +94,28 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     balance_var = tk.StringVar(value="Solde: —")
     tk.Label(session_frame, textvariable=name_var, font=("Arial", 12, "bold")).pack(anchor="w")
     tk.Label(session_frame, textvariable=balance_var).pack(anchor="w", pady=(0, 10))
+
     tk.Button(session_frame, text="Consulter", command=refresh_balance).pack(anchor="w")
+
+    # Retrait
+    tk.Label(session_frame, text="Montant à retirer").pack(anchor="w", pady=(12, 0))
+    withdraw_entry = tk.Entry(session_frame)
+    withdraw_entry.pack(anchor="w")
+
+    def do_withdraw():
+        if not current["acc"]:
+            return
+        raw = withdraw_entry.get().strip()
+        try:
+            amount = int(raw)
+            current["acc"].withdraw(amount)
+            save_accounts(accounts)
+            refresh_balance()
+            messagebox.showinfo("Succès", "Retrait effectué.")
+        except ValueError as e:
+            messagebox.showerror("Erreur", str(e))
+
+    tk.Button(session_frame, text="Retirer", command=do_withdraw).pack(anchor="w", pady=(4, 0))
 
     def do_login():
         raw = account_entry.get().strip()

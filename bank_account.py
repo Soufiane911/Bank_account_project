@@ -2,6 +2,9 @@ import random
 import json
 from pathlib import Path
 from typing import Dict
+import tkinter as tk
+from tkinter import messagebox
+
 
 class Account:
     def __init__(self, name: str, account_number: int | None = None, balance: int = 2000):
@@ -66,3 +69,10 @@ def seed_defaults(accounts: Dict[int, Account]) -> None:
         changed = True
     if changed:
         save_accounts(accounts)
+
+def launch_gui(accounts: Dict[int, Account]) -> None:
+    root = tk.Tk()
+    root.title("Banque – Interface")
+    root.geometry("520x420")
+
+    root.mainloop()

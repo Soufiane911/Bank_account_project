@@ -9,7 +9,17 @@ class Account:
         self.balance = balance
 
     def deposit(self, amount: int) -> None:
+        if amount <= 0:
+            raise ValueError("Le montant du dépôt doit être positif")
         self.balance += amount
 
     def withdraw(self, amount: int) -> None:
+        if amount <= 0:
+            raise ValueError("Le montant du retrait doit être positif")
+        if amount > self.balance:
+            raise ValueError("Fonds insuffisants")
         self.balance -= amount
+
+    def dump(self) -> None:
+        print(f"{self.name}, {self.account_number}, {self.balance}")
+

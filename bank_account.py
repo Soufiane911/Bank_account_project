@@ -74,5 +74,32 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     root = tk.Tk()
     root.title("Banque – Interface")
     root.geometry("520x420")
+    
+    current = {"acc": None}
+
+    # Frame de connexion
+    login_frame = tk.Frame(root, padx=12, pady=12)
+    tk.Label(login_frame, text="Connexion", font=("Arial", 14, "bold")).pack(anchor="w")
+    tk.Label(login_frame, text="Numéro de compte").pack(anchor="w", pady=(10, 0))
+    account_entry = tk.Entry(login_frame)
+    account_entry.pack(fill="x")
+
+    def do_login():
+        raw = account_entry.get().strip()
+        try:
+            num = int(raw)
+        except ValueError:
+            messagebox.showerror("Erreur", "Veuillez saisir un numéro entier.")
+            return
+        acc = accounts.get(num)
+        if not acc:
+            messagebox.showerror("Erreur", "Compte introuvable.")
+            return
+        current["acc"] = acc
+        messagebox.showinfo("Succès", f"Connecté: {acc.name} (#{acc.account_number})")
+
+    tk.Button(login_frame, text="Se connecter", command=do_login).pack(pady=10)
+    tk.Button(login_frame, text="Quitter", command=root.destroy).pack()
+    login_frame.pack(fill="both", expand=True)
 
     root.mainloop()

@@ -117,6 +117,48 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
 
     tk.Button(session_frame, text="Retirer", command=do_withdraw).pack(anchor="w", pady=(4, 0))
 
+    # Virement (Envoyer)
+    tk.Label(session_frame, text="Numéro destinataire").pack(anchor="w", pady=(12, 0))
+    send_target_entry = tk.Entry(session_frame)
+    send_target_entry.pack(anchor="w")
+    tk.Label(session_frame, text="Montant à envoyer").pack(anchor="w", pady=(6, 0))
+    send_amount_entry = tk.Entry(session_frame)
+    send_amount_entry.pack(anchor="w")
+
+    def do_send():
+        if not current["acc"]:
+            return
+        try:
+            target_num = int(send_target_entry.get().strip())
+            amount = int(send_amount_entry.get().strip())
+        except ValueError:
+            messagebox.showerror("Erreur", "Veuillez saisir des nombres entiers.")
+            return
+        target = accounts.get(target_num)
+        if not target:
+            messagebox.showerror("Erreur", "Compte destinataire introuvable.")
+            return
+        try:
+            current["acc"].withdraw(amount)
+            target.deposit(amount)
+            save_accounts(accounts)
+            refresh_balance()
+            messagebox.showinfo("Succès", f"Virement de {amount} vers #{target.account_number}.")
+        except ValueError as e:
+            messagebox.showerror("Erreur", str(e))
+
+    tk.Button(session_frame, text="Envoyer", command=do_send).pack(anchor="w", pady=(4, 0))
+
+    # Déconnexion / Quitter
+    def do_logout():
+        current["acc"] = None
+        account_entry.delete(0, tk.END)
+        session_frame.pack_forget()
+        login_frame.pack(fill="both", expand=True)
+
+    tk.Button(session_frame, text="Déconnexion", command=do_logout).pack(anchor="w", pady=(12, 0))
+    tk.Button(session_frame, text="Quitter", command=root.destroy).pack(anchor="w")
+
     def do_login():
         raw = account_entry.get().strip()
         try:

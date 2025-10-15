@@ -181,3 +181,14 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     login_frame.pack(fill="both", expand=True)
 
     root.mainloop()
+
+def main() -> None:
+    accounts = load_accounts()
+    seed_defaults(accounts)
+    launch_gui(accounts)
+
+
+if __name__ == "__main__":
+    accounts = load_accounts()
+    seed_defaults(accounts)
+    launch_gui(accounts)

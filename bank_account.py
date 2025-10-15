@@ -1,4 +1,7 @@
 import random
+import json
+from pathlib import Path
+from typing import Dict
 
 class Account:
     def __init__(self, name: str, account_number: int | None = None, balance: int = 2000):
@@ -23,3 +26,10 @@ class Account:
     def dump(self) -> None:
         print(f"{self.name}, {self.account_number}, {self.balance}")
 
+DATA_FILE = Path(__file__).resolve().parent / "accounts.json"
+
+def account_to_dict(acc: Account) -> dict:
+    return {"name": acc.name, "account_number": acc.account_number, "balance": acc.balance}
+
+def dict_to_account(d: dict) -> Account:
+    return Account(d["name"], account_number=int(d["account_number"]), balance=int(d["balance"]))

@@ -77,12 +77,24 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     
     current = {"acc": None}
 
+    def refresh_balance():
+        if current["acc"]:
+            balance_var.set(f"Solde: {current['acc'].balance}")
+
     # Frame de connexion
     login_frame = tk.Frame(root, padx=12, pady=12)
     tk.Label(login_frame, text="Connexion", font=("Arial", 14, "bold")).pack(anchor="w")
     tk.Label(login_frame, text="Numéro de compte").pack(anchor="w", pady=(10, 0))
     account_entry = tk.Entry(login_frame)
     account_entry.pack(fill="x")
+
+    # Frame de session (créée mais non affichée initialement)
+    session_frame = tk.Frame(root, padx=12, pady=12)
+    name_var = tk.StringVar(value="")
+    balance_var = tk.StringVar(value="Solde: —")
+    tk.Label(session_frame, textvariable=name_var, font=("Arial", 12, "bold")).pack(anchor="w")
+    tk.Label(session_frame, textvariable=balance_var).pack(anchor="w", pady=(0, 10))
+    tk.Button(session_frame, text="Consulter", command=refresh_balance).pack(anchor="w")
 
     def do_login():
         raw = account_entry.get().strip()

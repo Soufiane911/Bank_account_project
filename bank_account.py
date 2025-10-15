@@ -49,3 +49,20 @@ def load_accounts() -> Dict[int, Account]:
     except Exception:
         # en cas d'erreur on renvoie un dict vide pour ne pas planter
         return {}
+
+def save_accounts(accounts: Dict[int, Account]) -> None:
+    payload = {"accounts": {str(k): account_to_dict(v) for k, v in accounts.items()}}
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+def seed_defaults(accounts: Dict[int, Account]) -> None:
+    """Assure la présence de comptes par défaut si le fichier est vide."""
+    changed = False
+    if 9502018482 not in accounts:
+        accounts[9502018482] = Account("Ross", account_number=9502018482, balance=1350)
+        changed = True
+    if 1945729572 not in accounts:
+        accounts[1945729572] = Account("Rachel", account_number=1945729572, balance=3450)
+        changed = True
+    if changed:
+        save_accounts(accounts)

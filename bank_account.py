@@ -108,7 +108,10 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
             messagebox.showerror("Erreur", "Compte introuvable.")
             return
         current["acc"] = acc
-        messagebox.showinfo("Succès", f"Connecté: {acc.name} (#{acc.account_number})")
+        name_var.set(f"Titulaire: {acc.name} | Compte: {acc.account_number}")
+        refresh_balance()
+        login_frame.pack_forget()
+        session_frame.pack(fill="both", expand=True)
 
     tk.Button(login_frame, text="Se connecter", command=do_login).pack(pady=10)
     tk.Button(login_frame, text="Quitter", command=root.destroy).pack()

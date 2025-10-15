@@ -33,3 +33,19 @@ def account_to_dict(acc: Account) -> dict:
 
 def dict_to_account(d: dict) -> Account:
     return Account(d["name"], account_number=int(d["account_number"]), balance=int(d["balance"]))
+
+def load_accounts() -> Dict[int, Account]:
+    if not DATA_FILE.exists():
+        return {}
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        items = payload.get("accounts", {})
+        accounts: Dict[int, Account] = {}
+        for _, val in items.items():
+            acc = dict_to_account(val)
+            accounts[int(acc.account_number)] = acc
+        return accounts
+    except Exception:
+        # en cas d'erreur on renvoie un dict vide pour ne pas planter
+        return {}

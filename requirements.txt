@@ -1,0 +1,10 @@
+# Ce projet n'a pas de dépendances externes.
+# Il utilise uniquement la bibliothèque standard de Python.
+# Dont la bibliothèque random pour la génération de numéros de compte aléatoires.
+# Elle est utilisée dans la classe BankAccount pour générer un numéro de compte unique.
+# Le projet est conçu pour être exécuté sur n'importe quel système d'exploitation qui supporte Python.
+# Il peut être exécuté en utilisant la commande python bank_account.py dans le terminal.
+# Le projet est structuré en deux fichiers : bank_account.py et requirements.txt.
+# Le fichier bank_account.py contient le code source de l'application.
+# Le fichier requirements.txt contient les dépendances externes du projet.
+# Dans ce cas, il n'y a pas de dépendances externes.

@@ -7,12 +7,13 @@ from tkinter import messagebox
 
 
 class Account:
-    def __init__(self, name: str, account_number: int | None = None, balance: int = 2000):
+    def __init__(self, name: str, account_number: int | None = None, balance: int = 2000, password: str = "1234"):
         self.name = name
         self.account_number = (
             account_number if account_number is not None else random.randint(10**9, 10**10 - 1)
         )
         self.balance = balance
+        self.password = password
 
     def deposit(self, amount: int) -> None:
         if amount <= 0:
@@ -32,10 +33,10 @@ class Account:
 DATA_FILE = Path(__file__).resolve().parent / "accounts.json"
 
 def account_to_dict(acc: Account) -> dict:
-    return {"name": acc.name, "account_number": acc.account_number, "balance": acc.balance}
+    return {"name": acc.name, "account_number": acc.account_number, "balance": acc.balance, "password": acc.password}
 
 def dict_to_account(d: dict) -> Account:
-    return Account(d["name"], account_number=int(d["account_number"]), balance=int(d["balance"]))
+    return Account(d["name"], account_number=int(d["account_number"]), balance=int(d["balance"]), password=d.get("password", "1234"))
 
 def load_accounts() -> Dict[int, Account]:
     if not DATA_FILE.exists():
@@ -62,10 +63,10 @@ def seed_defaults(accounts: Dict[int, Account]) -> None:
     """Assure la présence de comptes par défaut si le fichier est vide."""
     changed = False
     if 9502018482 not in accounts:
-        accounts[9502018482] = Account("Ross", account_number=9502018482, balance=1350)
+        accounts[9502018482] = Account("Ross", account_number=9502018482, balance=1350, password="ross123")
         changed = True
     if 1945729572 not in accounts:
-        accounts[1945729572] = Account("Rachel", account_number=1945729572, balance=3450)
+        accounts[1945729572] = Account("Rachel", account_number=1945729572, balance=3450, password="rachel456")
         changed = True
     if changed:
         save_accounts(accounts)
@@ -73,7 +74,7 @@ def seed_defaults(accounts: Dict[int, Account]) -> None:
 def launch_gui(accounts: Dict[int, Account]) -> None:
     root = tk.Tk()
     root.title("Banque – Interface")
-    root.geometry("520x420")
+    root.geometry("1280x720")
     
     current = {"acc": None}
 
@@ -87,6 +88,10 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     tk.Label(login_frame, text="Numéro de compte").pack(anchor="w", pady=(10, 0))
     account_entry = tk.Entry(login_frame)
     account_entry.pack(fill="x")
+    
+    tk.Label(login_frame, text="Mot de passe").pack(anchor="w", pady=(10, 0))
+    password_entry = tk.Entry(login_frame, show="*")
+    password_entry.pack(fill="x")
 
     # Frame de session (créée mais non affichée initialement)
     session_frame = tk.Frame(root, padx=12, pady=12)
@@ -97,10 +102,34 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
 
     tk.Button(session_frame, text="Consulter", command=refresh_balance).pack(anchor="w")
 
+    # Dépôt
+    tk.Label(session_frame, text="Montant à déposer").pack(anchor="w", pady=(12, 0))
+    deposit_entry = tk.Entry(session_frame)
+    deposit_entry.pack(anchor="w")
+    deposit_entry.insert(0, "0")
+
+    def do_deposit():
+        if not current["acc"]:
+            return
+        raw = deposit_entry.get().strip()
+        try:
+            amount = int(raw)
+            current["acc"].deposit(amount)
+            save_accounts(accounts)
+            refresh_balance()
+            deposit_entry.delete(0, tk.END)
+            deposit_entry.insert(0, "0")
+            messagebox.showinfo("Succès", f"Dépôt de {amount} effectué.")
+        except ValueError as e:
+            messagebox.showerror("Erreur", str(e))
+
+    tk.Button(session_frame, text="Déposer", command=do_deposit).pack(anchor="w", pady=(4, 0))
+
     # Retrait
     tk.Label(session_frame, text="Montant à retirer").pack(anchor="w", pady=(12, 0))
     withdraw_entry = tk.Entry(session_frame)
     withdraw_entry.pack(anchor="w")
+    withdraw_entry.insert(0, "0")
 
     def do_withdraw():
         if not current["acc"]:
@@ -124,6 +153,7 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     tk.Label(session_frame, text="Montant à envoyer").pack(anchor="w", pady=(6, 0))
     send_amount_entry = tk.Entry(session_frame)
     send_amount_entry.pack(anchor="w")
+    send_amount_entry.insert(0, "0")
 
     def do_send():
         if not current["acc"]:
@@ -153,6 +183,7 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     def do_logout():
         current["acc"] = None
         account_entry.delete(0, tk.END)
+        password_entry.delete(0, tk.END)
         session_frame.pack_forget()
         login_frame.pack(fill="both", expand=True)
 
@@ -160,16 +191,24 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
     tk.Button(session_frame, text="Quitter", command=root.destroy).pack(anchor="w")
 
     def do_login():
-        raw = account_entry.get().strip()
+        raw_account = account_entry.get().strip()
+        raw_password = password_entry.get().strip()
+        
         try:
-            num = int(raw)
+            num = int(raw_account)
         except ValueError:
             messagebox.showerror("Erreur", "Veuillez saisir un numéro entier.")
             return
+            
         acc = accounts.get(num)
         if not acc:
             messagebox.showerror("Erreur", "Compte introuvable.")
             return
+            
+        if acc.password != raw_password:
+            messagebox.showerror("Erreur", "Mot de passe incorrect.")
+            return
+            
         current["acc"] = acc
         name_var.set(f"Titulaire: {acc.name} | Compte: {acc.account_number}")
         refresh_balance()

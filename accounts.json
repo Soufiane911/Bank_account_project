@@ -3,12 +3,14 @@
     "9502018482": {
       "name": "Ross",
       "account_number": 9502018482,
-      "balance": 2000
+      "balance": 7000,
+      "password": "1350"
     },
     "1945729572": {
       "name": "Rachel",
       "account_number": 1945729572,
-      "balance": 2000
+      "balance": 7000,
+      "password": "3450"
     }
   }
 }

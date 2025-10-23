@@ -30,13 +30,17 @@ class Account:
     def dump(self) -> None:
         print(f"{self.name}, {self.account_number}, {self.balance}")
 
+
 DATA_FILE = Path(__file__).resolve().parent / "accounts.json"
+
 
 def account_to_dict(acc: Account) -> dict:
     return {"name": acc.name, "account_number": acc.account_number, "balance": acc.balance, "password": acc.password}
 
+
 def dict_to_account(d: dict) -> Account:
     return Account(d["name"], account_number=int(d["account_number"]), balance=int(d["balance"]), password=d.get("password", "1234"))
+
 
 def load_accounts() -> Dict[int, Account]:
     if not DATA_FILE.exists():
@@ -51,16 +55,16 @@ def load_accounts() -> Dict[int, Account]:
             accounts[int(acc.account_number)] = acc
         return accounts
     except Exception:
-        # en cas d'erreur on renvoie un dict vide pour ne pas planter
         return {}
+
 
 def save_accounts(accounts: Dict[int, Account]) -> None:
     payload = {"accounts": {str(k): account_to_dict(v) for k, v in accounts.items()}}
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
+
 def seed_defaults(accounts: Dict[int, Account]) -> None:
-    """Assure la présence de comptes par défaut si le fichier est vide."""
     changed = False
     if 9502018482 not in accounts:
         accounts[9502018482] = Account("Ross", account_number=9502018482, balance=1350, password="ross123")
@@ -71,11 +75,12 @@ def seed_defaults(accounts: Dict[int, Account]) -> None:
     if changed:
         save_accounts(accounts)
 
+
 def launch_gui(accounts: Dict[int, Account]) -> None:
     root = tk.Tk()
     root.title("Banque – Interface")
     root.geometry("1280x720")
-    
+
     current = {"acc": None}
 
     def refresh_balance():
@@ -83,27 +88,27 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
             balance_var.set(f"Solde: {current['acc'].balance}")
 
     # Frame de connexion
-    login_frame = tk.Frame(root, padx=12, pady=12)
-    tk.Label(login_frame, text="Connexion", font=("Arial", 14, "bold")).pack(anchor="w")
-    tk.Label(login_frame, text="Numéro de compte").pack(anchor="w", pady=(10, 0))
+    login_frame = tk.Frame(root, padx=12, pady=12, bg="white")
+    tk.Label(login_frame, text="Connexion", font=("Arial", 14, "bold"), bg="white", fg="red").pack(anchor="w")
+    tk.Label(login_frame, text="Numéro de compte", bg="white").pack(anchor="w", pady=(10, 0))
     account_entry = tk.Entry(login_frame)
     account_entry.pack(fill="x")
-    
-    tk.Label(login_frame, text="Mot de passe").pack(anchor="w", pady=(10, 0))
+
+    tk.Label(login_frame, text="Mot de passe", bg="white").pack(anchor="w", pady=(10, 0))
     password_entry = tk.Entry(login_frame, show="*")
     password_entry.pack(fill="x")
 
-    # Frame de session (créée mais non affichée initialement)
-    session_frame = tk.Frame(root, padx=12, pady=12)
+    # Frame de session
+    session_frame = tk.Frame(root, padx=12, pady=12, bg="white")
     name_var = tk.StringVar(value="")
     balance_var = tk.StringVar(value="Solde: —")
-    tk.Label(session_frame, textvariable=name_var, font=("Arial", 12, "bold")).pack(anchor="w")
-    tk.Label(session_frame, textvariable=balance_var).pack(anchor="w", pady=(0, 10))
+    tk.Label(session_frame, textvariable=name_var, font=("Arial", 12, "bold"), bg="white", fg="red").pack(anchor="w")
+    tk.Label(session_frame, textvariable=balance_var, bg="white").pack(anchor="w", pady=(0, 10))
 
-    tk.Button(session_frame, text="Consulter", command=refresh_balance).pack(anchor="w")
+    tk.Button(session_frame, text="Consulter", command=refresh_balance, bg="blue", fg="white").pack(anchor="w")
 
     # Dépôt
-    tk.Label(session_frame, text="Montant à déposer").pack(anchor="w", pady=(12, 0))
+    tk.Label(session_frame, text="Montant à déposer", bg="white").pack(anchor="w", pady=(12, 0))
     deposit_entry = tk.Entry(session_frame)
     deposit_entry.pack(anchor="w")
     deposit_entry.insert(0, "0")
@@ -123,10 +128,10 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
         except ValueError as e:
             messagebox.showerror("Erreur", str(e))
 
-    tk.Button(session_frame, text="Déposer", command=do_deposit).pack(anchor="w", pady=(4, 0))
+    tk.Button(session_frame, text="Déposer", command=do_deposit, bg="blue", fg="white").pack(anchor="w", pady=(4, 0))
 
     # Retrait
-    tk.Label(session_frame, text="Montant à retirer").pack(anchor="w", pady=(12, 0))
+    tk.Label(session_frame, text="Montant à retirer", bg="white").pack(anchor="w", pady=(12, 0))
     withdraw_entry = tk.Entry(session_frame)
     withdraw_entry.pack(anchor="w")
     withdraw_entry.insert(0, "0")
@@ -144,13 +149,13 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
         except ValueError as e:
             messagebox.showerror("Erreur", str(e))
 
-    tk.Button(session_frame, text="Retirer", command=do_withdraw).pack(anchor="w", pady=(4, 0))
+    tk.Button(session_frame, text="Retirer", command=do_withdraw, bg="blue", fg="white").pack(anchor="w", pady=(4, 0))
 
-    # Virement (Envoyer)
-    tk.Label(session_frame, text="Numéro destinataire").pack(anchor="w", pady=(12, 0))
+    # Virement
+    tk.Label(session_frame, text="Numéro destinataire", bg="white").pack(anchor="w", pady=(12, 0))
     send_target_entry = tk.Entry(session_frame)
     send_target_entry.pack(anchor="w")
-    tk.Label(session_frame, text="Montant à envoyer").pack(anchor="w", pady=(6, 0))
+    tk.Label(session_frame, text="Montant à envoyer", bg="white").pack(anchor="w", pady=(6, 0))
     send_amount_entry = tk.Entry(session_frame)
     send_amount_entry.pack(anchor="w")
     send_amount_entry.insert(0, "0")
@@ -177,7 +182,7 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
         except ValueError as e:
             messagebox.showerror("Erreur", str(e))
 
-    tk.Button(session_frame, text="Envoyer", command=do_send).pack(anchor="w", pady=(4, 0))
+    tk.Button(session_frame, text="Envoyer", command=do_send, bg="blue", fg="white").pack(anchor="w", pady=(4, 0))
 
     # Déconnexion / Quitter
     def do_logout():
@@ -187,39 +192,40 @@ def launch_gui(accounts: Dict[int, Account]) -> None:
         session_frame.pack_forget()
         login_frame.pack(fill="both", expand=True)
 
-    tk.Button(session_frame, text="Déconnexion", command=do_logout).pack(anchor="w", pady=(12, 0))
-    tk.Button(session_frame, text="Quitter", command=root.destroy).pack(anchor="w")
+    tk.Button(session_frame, text="Déconnexion", command=do_logout, bg="red", fg="white").pack(anchor="w", pady=(12, 0))
+    tk.Button(session_frame, text="Quitter", command=root.destroy, bg="red", fg="white").pack(anchor="w")
 
     def do_login():
         raw_account = account_entry.get().strip()
         raw_password = password_entry.get().strip()
-        
+
         try:
             num = int(raw_account)
         except ValueError:
             messagebox.showerror("Erreur", "Veuillez saisir un numéro entier.")
             return
-            
+
         acc = accounts.get(num)
         if not acc:
             messagebox.showerror("Erreur", "Compte introuvable.")
             return
-            
+
         if acc.password != raw_password:
             messagebox.showerror("Erreur", "Mot de passe incorrect.")
             return
-            
+
         current["acc"] = acc
         name_var.set(f"Titulaire: {acc.name} | Compte: {acc.account_number}")
         refresh_balance()
         login_frame.pack_forget()
         session_frame.pack(fill="both", expand=True)
 
-    tk.Button(login_frame, text="Se connecter", command=do_login).pack(pady=10)
-    tk.Button(login_frame, text="Quitter", command=root.destroy).pack()
+    tk.Button(login_frame, text="Se connecter", command=do_login, bg="blue", fg="white").pack(pady=10)
+    tk.Button(login_frame, text="Quitter", command=root.destroy, bg="red", fg="white").pack()
     login_frame.pack(fill="both", expand=True)
 
     root.mainloop()
+
 
 def main() -> None:
     accounts = load_accounts()
